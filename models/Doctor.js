@@ -9,7 +9,7 @@ const DoctorSchema = new Schema({
         required: [true, 'Doctor name is required'],
         trim: true,
         minLength: [5, 'Doctor name must be at least 5 characters long'],
-        match: [/^[a-zA-Z ]+$/, 'Doctor name can only contain alphabetic characters and space (no special characters and numbers are allowed)'],
+        match: [/^[a-zA-Z. ]+$/, 'Doctor name can only contain alphabetic characters, space and dot (no special characters and numbers are allowed)'],
     },
 })
 

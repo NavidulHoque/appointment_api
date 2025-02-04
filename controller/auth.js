@@ -1,8 +1,8 @@
 import { User } from './../models/User.js'
 import jwt from 'jsonwebtoken'
-import { NODE_ENV, SECRET } from './../config/config.js';
+import { SECRET } from './../config/config.js';
 
-export const createUser = async (req, res) => {
+export const createUser = async (req, res, next) => {
 
     const { username, password } = req.body
 
@@ -19,11 +19,7 @@ export const createUser = async (req, res) => {
 
     catch (error) {
 
-        console.error(error)
-
-        return res.status(500).json({
-            message: "Server Error!!"
-        })
+        next(error)
     }
 }
 
@@ -31,48 +27,14 @@ export const login = async (req, res) => {
 
     const { username } = req.body
     const { user } = req
+    const { _id } = user
 
-    try {
+    const token = jwt.sign({ id: _id }, SECRET, { expiresIn: "1h" })
 
-        const { _id } = user
-
-        const token = jwt.sign({ id: _id }, SECRET, { expiresIn: "3d" })
-
-        return res.cookie("token", token, {
-            httpOnly: true,
-            secure: NODE_ENV === 'production',
-            sameSite: NODE_ENV === "development" ? "Strict" : "None",
-            maxAge: 3 * 24 * 60 * 60 * 1000
-        })
-        .status(200)
-        .json({
-            message: "Logged in successfully",
-            user: {id: _id, username}
-        })
-    }
-
-    catch (error) {
-
-        console.error(error)
-
-        return res.status(500).json({
-            message: "Server Error!!"
-        })
-    }
-}
-
-export const logout = async (req, res) => {
-
-    try {
-        return res.clearCookie("token", { sameSite: "none", secure: true }).status(200).json({ message: "Logged out successfully" })
-    }
-
-    catch (error) {
-        console.error(error)
-
-        return res.status(500).json({
-            message: "Server Error!!"
-        })
-    }
+    return res.status(200).json({
+        message: "Logged in successfully",
+        user: { id: _id, username },
+        token
+    })
 }
 

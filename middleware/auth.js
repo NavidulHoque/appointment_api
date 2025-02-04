@@ -1,48 +1,26 @@
 import { SECRET } from "../config/config.js"
 import { User } from "../models/User.js"
+import jwt from 'jsonwebtoken';
 
 export const registrationErrorHandler = async (req, res, next) => {
 
-    const { username, password } = req.body
+    const { username } = req.body
 
     try {
-
-        if (!username || !password) {
-            return res.status(400).json({
-                message: "Username and Password are required"
-            })
-        }
 
         const user = await User.findOne({ username })
 
         if (user) {
             return res.status(400).json({
-                message: "Username already exists, try another one"
-            })
-        }
-
-        if (username.length < 5 || username.length > 10) {
-            return res.status(400).json({
-                message: "Username must be between 5 to 10 characters long"
-            })
-        }
-
-        if (!/^[a-zA-Z0-9]+$/.test(username)) {
-            return res.status(400).json({
-                message: "Username can only contain alphanumeric characters (no special characters and space are allowed)"
+                message: "Username already exists, please try another name"
             })
         }
 
         next()
-    }
-
+    } 
+    
     catch (error) {
-
-        console.error(error)
-
-        return res.status(500).json({
-            message: "Server Error!!"
-        })
+        next(error)
     }
 }
 
@@ -75,17 +53,13 @@ export const loginErrorHandler = async (req, res, next) => {
 
     catch (error) {
 
-        console.error(error)
-
-        return res.status(500).json({
-            message: "Server Error!!"
-        })
+        next(error)
     }
 }
 
 export const protect = async (req, res, next) => {
 
-    const token = req.cookies.token
+    const token = req.headers.authorization
 
     if (!token) {
         return res.status(400).json({
@@ -96,6 +70,7 @@ export const protect = async (req, res, next) => {
     jwt.verify(token, SECRET, async (err) => {
 
         if (err) {
+
             if (err.name === "TokenExpiredError") {
 
                 return res.status(400).json({
@@ -103,9 +78,19 @@ export const protect = async (req, res, next) => {
                 })
             }
 
-            return res.status(400).json({
-                message: "Invalid token, please login again"
-            })
+            else if (err.name === "JsonWebTokenError") {
+
+                return res.status(400).json({
+                    message: "Invalid token, please login again"
+                }) 
+            }
+
+            else if (err.name === "NotBeforeError") {
+
+                return res.status(400).json({
+                    message: "Token not active yet, please login again"
+                })
+            }
         }
 
         next()
