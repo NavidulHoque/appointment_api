@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const {Schema} = mongoose
+const { Schema } = mongoose
 
 const AppointmentSchema = new Schema({
 
@@ -11,7 +11,7 @@ const AppointmentSchema = new Schema({
         minLength: [5, 'Patient Name must be at least 5 characters long'],
         match: [/^[a-zA-Z. ]+$/, 'Patient Name can only contain alphabetic characters, space and dot (no special characters and numbers are allowed)'],
     },
-    
+
     contactInformation: {
 
         phone: {
@@ -40,13 +40,18 @@ const AppointmentSchema = new Schema({
         match: [/^\d{1,2}:\d{2}:\d{2} [AP]M$/, 'Invalid time format, for example use "3:02:09 PM" format'],
         validate: {
             validator: function (time) {
-                
-                const fullDateTimeString = `${this.date} ${time}`;
-                const appointmentDateTime = new Date(fullDateTimeString);
 
-                const currentDateTime = new Date();
+                if (time && this.date) {
 
-                return appointmentDateTime > currentDateTime;
+                    const fullDateTimeString = `${this.date} ${time}`;
+                    const appointmentDateTime = new Date(fullDateTimeString);
+
+                    const currentDateTime = new Date();
+
+                    return appointmentDateTime > currentDateTime;
+                }
+
+                return true
             },
             message: "Appointment time must be in the future.",
         },

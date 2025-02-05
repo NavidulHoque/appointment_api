@@ -8,7 +8,7 @@ export const createAppointment = async (req, res, next) => {
     try {
 
         const appointment = await Appointment.create({ patientName, contactInformation, date, time, doctorId })
-        
+
         const populatedAppointment = await appointment.populate("doctorId", "name");
 
         const { _id } = populatedAppointment
@@ -103,10 +103,22 @@ export const updateAppointment = async (req, res, next) => {
             time,
             doctorId
         },
-        { new: true })
+            { new: true, runValidators: true })
+
+        const populatedAppointment = await appointment.populate("doctorId", "name");
 
         return res.status(200).json({
-            appointment,
+            appointment: {
+                id: populatedAppointment._id,
+                patientName,
+                contactInformation,
+                date,
+                time,
+                doctor: {
+                    id: doctorId,
+                    name: populatedAppointment.doctorId.name
+                }
+            },
             message: "Appointment updated successfully"
         })
     }
@@ -123,7 +135,7 @@ export const deleteAppointment = async (req, res, next) => {
 
     try {
 
-        const appointment = await Appointment.findOne({_id: id})
+        const appointment = await Appointment.findOne({ _id: id })
 
         if (!appointment) {
             return res.status(404).json({
