@@ -10,6 +10,10 @@ const app = express()
 
 app.use(express.json())
 
+app.get('/', (req, res) => {
+    return res.send('Welcome to Appointment API!')
+})
+
 app.use('/auth', authRouter)
 app.use('/doctors', doctorRouter)
 app.use('/appointments', appointmentRouter)
