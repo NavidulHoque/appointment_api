@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Appointment } from "../models/Appointment.js"
 
 
@@ -135,7 +136,7 @@ export const deleteAppointment = async (req, res, next) => {
 
     try {
 
-        const appointment = await Appointment.findOne({ _id: id })
+        const appointment = mongoose.Types.ObjectId.isValid(id) && await Appointment.findById(id)
 
         if (!appointment) {
             return res.status(404).json({

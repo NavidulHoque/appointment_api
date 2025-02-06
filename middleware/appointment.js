@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Appointment } from "../models/Appointment.js"
 import { Doctor } from './../models/Doctor.js';
 
@@ -9,7 +10,7 @@ export const appointmentErrorHandler = async (req, res, next) => {
 
     try {
 
-        const appointment = await Appointment.findOne({ _id: id })
+        const appointment = mongoose.Types.ObjectId.isValid(id) && await Appointment.findById(id)
 
         if (!appointment) {
             return res.status(404).json({
@@ -17,7 +18,7 @@ export const appointmentErrorHandler = async (req, res, next) => {
             })
         }
 
-        const doctor = await Doctor.findOne({ _id: doctorId })
+        const doctor = mongoose.Types.ObjectId.isValid(doctorId) && await Doctor.findById(doctorId)
 
         if (!doctor) {
             return res.status(404).json({
