@@ -13,7 +13,7 @@ export const createAppointment = async (req, res, next) => {
 
         if (!doctor) {
             return res.status(404).json({
-                message: "Doctor not found, please choose another doctor"
+                message: "Doctor not found"
             })
         }
 
