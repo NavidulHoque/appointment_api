@@ -59,7 +59,7 @@ export const loginErrorHandler = async (req, res, next) => {
 
 export const protect = async (req, res, next) => {
 
-    const token = req.headers.Authorization
+    const token = req.headers.authorization
 
     if (!token) {
         return res.status(400).json({
