@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Appointment } from "../models/Appointment.js"
+import { Doctor } from "../models/Doctor.js";
 
 
 export const createAppointment = async (req, res, next) => {
@@ -7,6 +8,14 @@ export const createAppointment = async (req, res, next) => {
     const { patientName, contactInformation, date, time, doctorId } = req.body
 
     try {
+
+        const doctor = mongoose.Types.ObjectId.isValid(doctorId) && await Doctor.findById(doctorId)
+
+        if (!doctor) {
+            return res.status(404).json({
+                message: "Doctor not found, please choose another doctor"
+            })
+        }
 
         const appointment = await Appointment.create({ patientName, contactInformation, date, time, doctorId })
 
